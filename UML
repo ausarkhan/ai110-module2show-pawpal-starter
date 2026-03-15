@@ -1,0 +1,64 @@
+┌─────────────────────────┐
+│         Owner           │
+├─────────────────────────┤
+│ name: str               │
+│ email: str              │
+│ pets: list[Pet]         │
+├─────────────────────────┤
+│ add_pet(pet)            │
+│ get_pets() → list[Pet]  │
+└────────────┬────────────┘
+             │ 1 Owner has many Pets
+             ▼
+┌─────────────────────────┐
+│          Pet            │
+├─────────────────────────┤
+│ name: str               │
+│ species: str            │
+│ age: int                │
+│ tasks: list[Task]       │
+├─────────────────────────┤
+│ add_task(task)          │
+│ get_tasks() → list[Task]│
+└────────────┬────────────┘
+             │ 1 Pet has many Tasks
+             ▼
+┌─────────────────────────┐
+│         Task            │
+├─────────────────────────┤
+│ title: str              │
+│ date: str  (YYYY-MM-DD) │
+│ time: str  (HH:MM)      │
+│ task_type: str          │
+│ completed: bool         │
+│ recurring: bool         │
+│ recur_days: int         │
+├─────────────────────────┤
+│ mark_complete()         │
+└─────────────────────────┘
+
+┌────────────────────────────────────────────────┐
+│               Scheduler                        │
+├────────────────────────────────────────────────┤
+│ owner: Owner                                   │
+│ task_registry: list[(pet_name, Task)]          │
+├────────────────────────────────────────────────┤
+│ refresh()                                      │
+│ get_all_tasks()  → list[(str, Task)]           │
+│ sort_tasks_by_date() → sorted list             │
+│ filter_by_pet(pet_name) → list                 │
+│ filter_by_status(completed) → list             │
+│ filter_by_type(task_type) → list               │
+│ detect_conflicts() → list                      │
+│ get_recurring_tasks() → list                   │
+└────────────────────────────────────────────────┘
+         ▲
+         │ receives Owner, reads Owner→Pet→Task
+         
+         
+         
+Relationship notes:
+
+Owner → Pet: owner.add_pet(pet) stores Pet in owner.pets. Access via owner.get_pets().
+Pet → Task: pet.add_task(task) stores Task in pet.tasks. Tasks live on the Pet, not on the Owner.
+Task → Scheduler: Scheduler doesn't own tasks. On creation it calls _build_registry(), which walks Owner → pets → tasks and copies every (pet_name, task) pair into a flat list (task_registry). All scheduling operations run against that flat list
